@@ -1,26 +1,26 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Northwind QA Store</title>
+    <title>Northwind QA Store - учебный магазин</title>
     <link rel="stylesheet" href="/store.css" />
   </head>
   <body>
     <header class="topbar">
-      <a class="brand" href="/store.html" aria-label="Northwind QA Store home">
+      <a class="brand" href="/store.html" aria-label="Главная страница Northwind QA Store">
         <span class="brand-mark" aria-hidden="true">N</span>
         <span>
           <strong>Northwind QA Store</strong>
-          <small>microservices storefront</small>
+          <small>учебный микросервисный магазин</small>
         </span>
       </a>
 
-      <nav class="topnav" aria-label="Store navigation">
-        <a href="#catalog">Catalog</a>
-        <a href="#cart">Cart</a>
-        <a href="#orders">Orders</a>
-        <a href="#account">Account</a>
+      <nav class="topnav" aria-label="Навигация магазина">
+        <a href="#catalog">Каталог</a>
+        <a href="#cart">Корзина</a>
+        <a href="#orders">Заказы</a>
+        <a href="#account">Профиль</a>
         <a href="/">QA Dashboard</a>
       </nav>
     </header>
@@ -28,56 +28,56 @@
     <main>
       <section class="store-hero">
         <div class="hero-copy">
-          <p class="eyebrow">Live training storefront</p>
-          <h1>Shop the same system you test from the inside.</h1>
+          <p class="eyebrow">Учебная витрина</p>
+          <h1>Покупай в той же системе, которую тестируешь изнутри.</h1>
           <p>
-            Browse products, build a cart, create an account, place orders, and watch the same flow appear in RabbitMQ,
-            notifications, logs, Prometheus, and Grafana.
+            Смотри товары, собирай корзину, создавай профиль, оформляй заказы и затем проверяй тот же поток в RabbitMQ,
+            уведомлениях, логах, Prometheus и Grafana.
           </p>
         </div>
-        <div class="hero-media" aria-label="Store shelves with products"></div>
+        <div class="hero-media" aria-label="Полки магазина с товарами"></div>
       </section>
 
       <section class="status-strip" aria-live="polite">
         <div>
-          <strong id="storeHealthLabel">Checking services</strong>
-          <span id="storeHealthDetail">Gateway, catalog, orders, payments, notifications</span>
+          <strong id="storeHealthLabel">Проверяем сервисы</strong>
+          <span id="storeHealthDetail">Gateway, каталог, заказы, платежи, уведомления</span>
         </div>
-        <button id="refreshStore" type="button">Refresh store</button>
+        <button id="refreshStore" type="button">Обновить витрину</button>
       </section>
 
       <section id="catalog" class="commerce-layout">
         <div class="catalog-area">
           <div class="section-heading">
             <div>
-              <h2>Catalog</h2>
-              <p>Products are stored in product-service and cached through Redis.</p>
+              <h2>Каталог</h2>
+              <p>Товары хранятся в product-service и кешируются через Redis.</p>
             </div>
-            <button id="seedCatalog" type="button" class="secondary">Seed demo catalog</button>
+            <button id="seedCatalog" type="button" class="secondary">Заполнить демо-каталог</button>
           </div>
 
           <div class="catalog-toolbar">
             <label>
-              Search
-              <input id="searchInput" type="search" placeholder="Search products" />
+              Поиск
+              <input id="searchInput" type="search" placeholder="Найти товар" />
             </label>
             <label>
-              Category
+              Категория
               <select id="categoryFilter">
-                <option value="all">All categories</option>
-                <option value="workspace">Workspace</option>
-                <option value="home">Home</option>
-                <option value="travel">Travel</option>
-                <option value="audio">Audio</option>
+                <option value="all">Все категории</option>
+                <option value="workspace">Рабочее место</option>
+                <option value="home">Дом</option>
+                <option value="travel">Путешествия</option>
+                <option value="audio">Аудио</option>
               </select>
             </label>
             <label>
-              Sort
+              Сортировка
               <select id="sortSelect">
-                <option value="newest">Newest first</option>
-                <option value="price-asc">Price: low to high</option>
-                <option value="price-desc">Price: high to low</option>
-                <option value="stock-desc">Stock: high to low</option>
+                <option value="newest">Сначала новые</option>
+                <option value="price-asc">Цена: сначала дешевле</option>
+                <option value="price-desc">Цена: сначала дороже</option>
+                <option value="stock-desc">Остаток: сначала больше</option>
               </select>
             </label>
           </div>
@@ -85,31 +85,31 @@
           <div id="catalogGrid" class="catalog-grid" aria-live="polite"></div>
         </div>
 
-        <aside id="cart" class="cart-panel" aria-label="Shopping cart">
+        <aside id="cart" class="cart-panel" aria-label="Корзина покупателя">
           <div class="panel-header">
             <div>
-              <h2>Cart</h2>
-              <p id="cartSummary">No items yet</p>
+              <h2>Корзина</h2>
+              <p id="cartSummary">Пока пусто</p>
             </div>
-            <button id="clearCart" type="button" class="ghost">Clear</button>
+            <button id="clearCart" type="button" class="ghost">Очистить</button>
           </div>
           <div id="cartItems" class="cart-items"></div>
           <div class="cart-total">
-            <span>Total</span>
+            <span>Итого</span>
             <strong id="cartTotal">$0.00</strong>
           </div>
-          <button id="checkoutButton" type="button">Checkout</button>
-          <p class="cart-note">Payment result is controlled from the QA Dashboard payment sandbox.</p>
+          <button id="checkoutButton" type="button">Оформить заказ</button>
+          <p class="cart-note">Результат платежа управляется из платежной песочницы в QA Dashboard.</p>
         </aside>
       </section>
 
       <section id="account" class="account-section">
         <div class="section-heading">
           <div>
-            <h2>Account</h2>
-            <p>Create a shopper profile before checkout.</p>
+            <h2>Профиль</h2>
+            <p>Создай профиль покупателя перед оформлением заказа.</p>
           </div>
-          <span id="accountBadge" class="badge muted">Guest</span>
+          <span id="accountBadge" class="badge muted">Гость</span>
         </div>
 
         <div class="account-grid">
@@ -119,17 +119,17 @@
               <input id="accountEmail" type="email" required />
             </label>
             <label>
-              Full name
-              <input id="accountName" type="text" required value="Store Customer" />
+              Имя покупателя
+              <input id="accountName" type="text" required value="Покупатель магазина" />
             </label>
-            <button type="submit">Create account</button>
+            <button type="submit">Создать профиль</button>
           </form>
 
           <div class="account-card">
-            <h3>Current shopper</h3>
+            <h3>Текущий покупатель</h3>
             <dl id="accountDetails">
-              <dt>Status</dt>
-              <dd>No account selected</dd>
+              <dt>Статус</dt>
+              <dd>Профиль не выбран</dd>
             </dl>
           </div>
         </div>
@@ -138,10 +138,10 @@
       <section id="orders" class="orders-section">
         <div class="section-heading">
           <div>
-            <h2>Orders</h2>
-            <p>Order status comes from order-service; events arrive through RabbitMQ into notifications.</p>
+            <h2>Заказы</h2>
+            <p>Статус заказа приходит из order-service; события проходят через RabbitMQ в уведомления.</p>
           </div>
-          <button id="refreshOrders" type="button" class="secondary">Refresh orders</button>
+          <button id="refreshOrders" type="button" class="secondary">Обновить заказы</button>
         </div>
 
         <div id="checkoutMessage" class="message" hidden></div>
