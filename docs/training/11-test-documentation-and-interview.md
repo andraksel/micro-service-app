@@ -15,6 +15,171 @@
 - объяснять проект на собеседовании;
 - отвечать на вопросы с альтернативными формулировками.
 
+## Перед практикой: что нужно понять
+
+Тестовая документация - это не бюрократия. Это способ передать команде, что именно проверялось, почему это важно, какие риски остаются и какие дефекты подтверждены evidence-ом.
+
+Сильный QA отличается не количеством слов в документе, а качеством мышления: он умеет отделять цель тестирования от шагов, expected behavior от actual behavior, symptom от root cause, severity от priority.
+
+### Какие документы нужны и зачем
+
+В этом уроке ты готовишь набор артефактов, похожий на реальную работу QA в проекте.
+
+| Артефакт | Зачем нужен | Что должен показывать |
+| --- | --- | --- |
+| Test Plan | Объяснить стратегию тестирования. | Scope, риски, окружение, подход, критерии входа/выхода. |
+| Checklist | Быстро покрыть область проверками. | Что должно быть проверено без лишней детализации шагов. |
+| Test Cases | Зафиксировать воспроизводимые сценарии. | Preconditions, steps, expected result, test data. |
+| Bug Report | Передать дефект разработчику. | Steps, actual, expected, evidence, impact, suspected component. |
+| Test Summary | Подвести итог тестового цикла. | Что проверено, что найдено, что заблокировано, residual risk. |
+
+### Test Plan vs Checklist vs Test Case
+
+Test Plan отвечает на вопрос:
+
+```text
+Как мы будем тестировать эту систему и какие риски покрываем?
+```
+
+Checklist отвечает на вопрос:
+
+```text
+Что нужно не забыть проверить?
+```
+
+Test Case отвечает на вопрос:
+
+```text
+Как точно воспроизвести конкретную проверку и какой результат ожидается?
+```
+
+Одна и та же область может быть описана на разных уровнях.
+
+Пример для checkout:
+
+```text
+Test Plan:
+Проверить критичный e-commerce flow заказа через UI, API и observability.
+
+Checklist:
+- Валидный пользователь может оформить заказ.
+- Заблокированный пользователь не может оформить заказ.
+- Payment decline не создает paid order.
+- После заказа появляется notification.
+
+Test Case:
+Precondition: user active, product active, stock >= 1, payment mode success.
+Steps: открыть магазин, добавить товар, оформить заказ.
+Expected: order.status = paid, notification created.
+```
+
+### Что такое хороший bug report
+
+Хороший bug report позволяет разработчику воспроизвести проблему без личного созвона с QA.
+
+Минимальный состав:
+
+- title: коротко и конкретно;
+- environment: где найдено;
+- preconditions: что было настроено;
+- steps to reproduce: шаги без пропусков;
+- actual result: что произошло;
+- expected result: что должно было произойти;
+- evidence: скриншоты, response body, status code, request id, logs;
+- impact: что теряет пользователь или бизнес;
+- severity/priority;
+- suspected component, если есть основания.
+
+Плохой баг:
+
+```text
+Checkout не работает.
+```
+
+Сильный баг:
+
+```text
+Checkout returns 504 when payment mode is timeout; order is not created, UI shows raw backend error.
+Evidence: request id ..., POST /api/orders -> 504, order-service logs show payment-service timed out.
+Impact: user cannot complete purchase during payment provider degradation.
+```
+
+### Severity и priority
+
+Severity - насколько серьезно поведение ломает продукт.
+
+Priority - насколько срочно команде нужно это исправить.
+
+Пример:
+
+```text
+Опечатка в админском тексте: low severity, low priority.
+Checkout не работает для всех пользователей: critical severity, high priority.
+Редкий edge case в тестовом dashboard: medium/low severity, низкий priority.
+Юридически неверный текст в платежах: может быть low technical severity, но high business priority.
+```
+
+На собеседовании важно не называть severity механически. Нужно объяснять impact.
+
+### Evidence важнее догадки
+
+QA может предположить suspected component, но не должен выдавать догадку за факт.
+
+Правильная формулировка:
+
+```text
+Suspected component: payment-service, because POST /api/orders returns 504 and order-service logs contain payment timeout with the same request id.
+```
+
+Неправильная формулировка:
+
+```text
+Проблема в payment-service, потому что я так думаю.
+```
+
+Evidence может быть:
+
+- status code;
+- response body;
+- request/response payload;
+- screenshot UI;
+- `X-Request-ID`;
+- фрагмент логов;
+- RabbitMQ queue state;
+- Grafana screenshot;
+- команда воспроизведения;
+- fault flag, который включен.
+
+### Как рассказывать проект на собеседовании
+
+Твоя цель - не перечислить технологии, а показать инженерное мышление.
+
+Слабый рассказ:
+
+```text
+Я тестировал микросервисы, Docker, RabbitMQ, Grafana.
+```
+
+Сильный рассказ:
+
+```text
+Я тестировал учебный e-commerce проект на микросервисах. Пользователь проходит каталог, аккаунт, корзину и checkout. Запросы идут через nginx gateway в отдельные сервисы: user, product, order, payment, notification. Я проверял UI, API-контракты, статусы ответов, Redis cache для товаров, RabbitMQ events для уведомлений, Grafana/Prometheus для метрик и fault flags для production-like отказов. Дефекты локализовал по request id, логам, readiness и состоянию зависимостей.
+```
+
+### Что должен проговаривать QA
+
+Перед подготовкой документации проговаривай:
+
+```text
+Кто будет читать этот документ?
+Какое решение он должен помочь принять?
+Есть ли evidence для каждого вывода?
+Понятен ли impact?
+Не смешал ли я symptom и root cause?
+Может ли другой QA воспроизвести проверку по моим шагам?
+Смогу ли я защитить этот вывод на собеседовании?
+```
+
 ## Что сделать
 
 Подготовь 5 документов в своей рабочей папке:

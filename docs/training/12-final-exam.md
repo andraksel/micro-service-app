@@ -19,6 +19,115 @@
 - готовить тестовую документацию уровня middle/middle+ QA;
 - уверенно рассказывать проект на собеседовании в технических терминах.
 
+## Перед экзаменом: что должно сложиться в голове
+
+Итоговый экзамен проверяет не память команд, а цельное понимание системы. Ты должен уметь пройти путь от пользовательского действия до внутренних последствий и обратно.
+
+Если коротко, ты должен видеть систему так:
+
+```text
+Пользователь
+  -> Customer Store
+  -> nginx gateway
+  -> API конкретного сервиса
+  -> база или dependency
+  -> side effects
+  -> logs/metrics/evidence
+```
+
+### Карта сервисов, которую нужно уметь объяснить
+
+| Компонент | Роль в системе | Что проверяет QA |
+| --- | --- | --- |
+| `nginx` | Отдает UI и проксирует `/api/*` в сервисы. | Роутинг, gateway errors, доступность UI/API. |
+| `user-service` | Владеет пользователями и статусами. | Создание, validation, unique email, `active/blocked/deleted`. |
+| `product-service` | Владеет каталогом и stock. | Товары, цена, статус, stock, Redis cache. |
+| `order-service` | Оркестрирует checkout. | Интеграционный flow, сумма, статусы заказа, side effects. |
+| `payment-service` | Имитирует платежный dependency. | Success, decline, timeout, resilience. |
+| `notification-service` | Создает уведомления по событиям. | RabbitMQ consumer, eventual consistency, idempotency. |
+| PostgreSQL DBs | Хранят данные конкретных сервисов. | Целостность данных и readiness сервисов. |
+| Redis | Кеширует товары. | `HIT/MISS`, stale data, invalidation. |
+| RabbitMQ | Передает события между сервисами. | Queue, exchange, consumer, ack, потеря/дубли событий. |
+| Prometheus | Собирает метрики. | Error rate, request rate, latency, targets. |
+| Grafana | Показывает dashboards. | Визуальное подтверждение деградации и восстановления. |
+
+### Главная цепочка checkout
+
+На экзамене ты должен без подсказок объяснить:
+
+```text
+1. Пользователь выбирает товар в Customer Store.
+2. UI отправляет POST /api/orders.
+3. nginx проксирует запрос в order-service.
+4. order-service запрашивает user-service.
+5. order-service запрашивает product-service.
+6. order-service вызывает payment-service.
+7. order-service сохраняет заказ.
+8. order-service публикует событие в RabbitMQ.
+9. notification-service читает событие.
+10. Пользователь видит заказ и уведомление.
+```
+
+Важно понимать, где синхронная часть, а где асинхронная. Ответ `POST /api/orders` не всегда означает, что notification уже создана.
+
+### Как думать при дефекте
+
+Используй не угадывание, а диагностическую цепочку:
+
+```text
+1. Что увидел пользователь?
+2. Какой API был вызван?
+3. Какой status code и response body вернулись?
+4. Есть ли X-Request-ID?
+5. Через gateway проблема повторяется?
+6. Напрямую в сервис проблема повторяется?
+7. /ready сервиса зеленый?
+8. Есть ли ошибки в логах?
+9. Какая dependency участвует: DB, Redis, RabbitMQ, payment?
+10. Что показывают Grafana/Prometheus?
+11. Какой suspected component подтвержден evidence-ом?
+12. Как вернуть baseline?
+```
+
+Если ты проходишь эту цепочку спокойно и последовательно, ты демонстрируешь уровень, близкий к работе на реальном проекте.
+
+### Как отвечать на экзамене и собеседовании
+
+Каждый ответ строится по схеме:
+
+```text
+Контекст -> Действие -> Evidence -> Вывод -> Impact
+```
+
+Пример:
+
+```text
+Контекст: Я проверял checkout при payment timeout.
+Действие: Переключил payment mode в timeout и отправил POST /api/orders.
+Evidence: API вернул 504, в логах order-service по request id видно payment timed out, в Grafana выросла latency/error rate.
+Вывод: проблема локализуется в payment dependency handling.
+Impact: пользователь не может завершить покупку, система должна показать понятную ошибку и не создавать дубли.
+```
+
+### Минимальный уровень для зачета
+
+Перед экзаменом ты должен уметь:
+
+- поднять и остановить стенд;
+- отличить `Running` от `Healthy`;
+- объяснить nginx и gateway;
+- пройти UI flow магазина;
+- проверить API через gateway;
+- проверить сервис напрямую;
+- прочитать Swagger;
+- объяснить основные status codes;
+- проверить Redis cache;
+- открыть RabbitMQ и найти очередь;
+- открыть Grafana и Prometheus;
+- включить fault flag и вернуть baseline;
+- оформить баг с evidence;
+- рассказать проект без чтения с листа.
+
 ## Условия
 
 - Не пользоваться pytest как основным способом проверки.
