@@ -1,12 +1,21 @@
 # microservices-qa-lab
 
-Local microservices testing laboratory for QA Automation Engineers.
+Локальный учебный проект для тестировщика, который хочет разобраться в реальном микросервисном приложении.
 
-The project demonstrates API testing, integration testing, contract checks, asynchronous RabbitMQ messaging, Redis cache behavior, resilience scenarios, gateway routing, service-owned databases, and structured request tracing.
+Это небольшой интернет-магазин с пользовательским интерфейсом, QA Dashboard, API Gateway, несколькими backend-сервисами, базами данных, Redis, RabbitMQ, Prometheus и Grafana. Проект можно запускать полностью на своем компьютере через Docker Compose. Платные облачные сервисы не нужны.
 
-No paid cloud services are required.
+На этом проекте можно тренировать:
 
-## Architecture
+- ручное тестирование UI и API;
+- интеграционное тестирование нескольких сервисов;
+- проверку контрактов запросов и ответов;
+- работу с RabbitMQ и асинхронными событиями;
+- проверку Redis cache;
+- диагностику через логи, метрики, Prometheus и Grafana;
+- моделирование поломок через fault injection;
+- подготовку к собеседованию QA / QA Automation.
+
+## Архитектура
 
 ```mermaid
 flowchart LR
@@ -35,32 +44,80 @@ flowchart LR
     Grafana["Grafana :3000"] --> Prometheus
 ```
 
-## Services
+Пользователь открывает магазин через `nginx`. `nginx` работает как API Gateway: принимает внешние запросы на `http://localhost:8080` и отправляет их в нужный сервис.
 
-| Service | Responsibility |
+Например:
+
+- создание пользователя идет в `user-service`;
+- каталог товаров идет в `product-service`;
+- оформление заказа идет в `order-service`;
+- платеж проверяется через `payment-service`;
+- уведомление о заказе создается через `notification-service` после события в RabbitMQ.
+
+## Сервисы
+
+| Сервис | За что отвечает |
 | --- | --- |
-| `user-service` | Owns users, status, and email uniqueness. |
-| `product-service` | Owns catalog, stock, and Redis product cache. |
-| `order-service` | Orchestrates user/product/payment checks and publishes order events. |
-| `payment-service` | Simulates payment success, failure, timeout, and random behavior. |
-| `notification-service` | Consumes order events and stores idempotent notifications. |
-| `nginx` | Exposes one public API surface at `http://localhost:8080`. |
-| `prometheus` | Scrapes service `/metrics` endpoints. |
-| `grafana` | Provides preconfigured dashboards backed by Prometheus. |
+| `user-service` | Пользователи, email, имя, статус аккаунта. |
+| `product-service` | Каталог товаров, цены, остатки на складе, Redis cache. |
+| `order-service` | Создание заказов, проверка пользователя, товаров и платежа. |
+| `payment-service` | Тестовая платежная система: success, failure, timeout, random. |
+| `notification-service` | Читает события заказов из RabbitMQ и создает уведомления. |
+| `nginx` | Единая точка входа в приложение: `http://localhost:8080`. |
+| `prometheus` | Собирает метрики сервисов с `/metrics`. |
+| `grafana` | Показывает метрики в готовом dashboard. |
 
-## Run Locally
+## Быстрый запуск
 
-From `C:\microservices-qa-lab`:
+Перейди в папку проекта. Если работаешь с текущей локальной папкой, команда будет такой:
 
-```bash
+```powershell
+cd C:\microservices-qa-lab
+```
+
+Если ты клонировал репозиторий из GitHub в другое место, перейди в свою папку проекта.
+
+И запусти все сервисы:
+
+```powershell
 docker compose up --build
 ```
 
-Gateway:
+Если хочешь запустить в фоне, используй:
+
+```powershell
+docker compose up -d --build
+```
+
+После запуска открой:
 
 ```text
 http://localhost:8080
 ```
+
+Это главный вход через gateway.
+
+## Пользовательский магазин
+
+Пользовательский интерфейс магазина:
+
+```text
+http://localhost:8080/store.html
+```
+
+В нем можно:
+
+- посмотреть каталог товаров;
+- создать аккаунт покупателя;
+- добавить товары в корзину;
+- оформить заказ;
+- посмотреть историю заказов;
+- увидеть статус заказа;
+- проверить, что обычный пользователь видит систему как реальный интернет-магазин.
+
+Этот UI работает через те же backend-сервисы, что и тесты: `user-service`, `product-service`, `order-service`, `payment-service` и `notification-service`.
+
+## QA Dashboard
 
 QA Dashboard:
 
@@ -68,15 +125,18 @@ QA Dashboard:
 http://localhost:8080
 ```
 
-The dashboard can create users, products, orders, switch payment modes, check cache headers, and view notifications through the same gateway routes used by the tests.
+Он нужен тестировщику. Через него можно быстро:
 
-Customer Storefront:
+- создавать пользователей;
+- создавать товары;
+- создавать заказы;
+- переключать режим платежей;
+- проверять Redis cache через `X-Cache`;
+- смотреть уведомления;
+- открывать Swagger UI сервисов;
+- переходить в RabbitMQ, Grafana и Prometheus.
 
-```text
-http://localhost:8080/store.html
-```
-
-The storefront is a customer-facing shop UI backed by the same user, product, order, payment, and notification services.
+## Полезные web-инструменты
 
 RabbitMQ Management UI:
 
@@ -85,6 +145,8 @@ http://localhost:15672
 guest / guest
 ```
 
+RabbitMQ нужен, чтобы смотреть очереди и события заказов.
+
 Grafana:
 
 ```text
@@ -92,41 +154,61 @@ http://localhost:3000
 admin / admin
 ```
 
+Grafana нужна, чтобы смотреть dashboard с метриками: количество запросов, ошибки, latency и состояние сервисов.
+
 Prometheus:
 
 ```text
 http://localhost:9090
 ```
 
-## Stop And Reset
+Prometheus собирает метрики с сервисов и хранит их для Grafana.
 
-```bash
+## Остановка и полный сброс
+
+Остановить контейнеры:
+
+```powershell
 docker compose down
 ```
 
-Remove volumes and reset all databases/messages:
+Остановить контейнеры и удалить все данные из баз, Redis и RabbitMQ:
 
-```bash
+```powershell
 docker compose down -v
 ```
 
-## Run Tests
+Команда `down -v` полезна, когда нужно начать с полностью чистого стенда.
 
-Install test dependencies on the host:
+## Проверка, что стенд живой
 
-```bash
+Быстрая smoke-проверка:
+
+```powershell
+py -3 scripts\fault_lab.py smoke
+```
+
+Она проверяет gateway, все backend-сервисы, Prometheus и Grafana.
+
+Ожидаемый результат - все строки должны вернуться со статусом `200`.
+
+## Запуск тестов
+
+Установить зависимости для тестов на хосте:
+
+```powershell
 pip install -r requirements-dev.txt
 ```
 
-Run all tests:
+Запустить все тесты:
 
-```bash
+```powershell
 pytest
 ```
 
-Run by layer:
+Запустить тесты по слоям:
 
-```bash
+```powershell
 pytest -m api
 pytest -m integration
 pytest -m contract
@@ -135,50 +217,77 @@ pytest -m cache
 pytest -m resilience
 ```
 
-Run tests inside Docker Compose:
+Запустить тесты внутри Docker Compose:
 
-```bash
+```powershell
 docker compose -f docker-compose.yml -f docker-compose.test.yml run --rm test-runner
 ```
 
-## Manual QA Learning Plan
+## Учебный план для ручного QA
 
-For manual practice before automation, use:
+План обучения без автоматизации:
 
 ```text
 docs/manual-qa-mastery-plan.md
 ```
 
-It contains a step-by-step learning path, manual testing tasks, expected artifacts, and interview questions with answers.
+В нем описано, как проходить проект руками: что проверять, какие артефакты готовить, какие вопросы могут быть на собеседовании и как на них отвечать.
 
-Detailed lesson files are available here:
+Подробные уроки лежат здесь:
 
 ```text
 docs/training/README.md
 ```
 
-The `docs/training` folder contains separate lessons with competencies, exact tester actions, investigation points, expected evidence, interview questions, main answers, and alternative answer variants.
+В папке `docs/training` есть отдельные уроки. В каждом уроке расписано:
+
+- какие компетенции ты получишь;
+- что именно делать тестировщику;
+- куда смотреть в UI, API, Docker, RabbitMQ, Grafana и логах;
+- почему эти проверки важны;
+- какие evidence собирать;
+- какие вопросы могут быть на собеседовании;
+- как отвечать основным и альтернативным способом.
 
 ## Fault Injection CLI
 
-Use the fault injection utility to model production-like failures locally:
+В проекте есть CLI-утилита, которая умеет намеренно ломать приложение. Это нужно для тренировки реальных production-ситуаций.
 
-```bash
+Посмотреть список поломок:
+
+```powershell
 py -3 scripts\fault_lab.py list
+```
+
+Включить поломку payment timeout:
+
+```powershell
 py -3 scripts\fault_lab.py enable payment-timeout
+```
+
+Выключить поломку:
+
+```powershell
 py -3 scripts\fault_lab.py disable payment-timeout
+```
+
+Вернуть систему в рабочее состояние:
+
+```powershell
 py -3 scripts\fault_lab.py restore-all
 ```
 
-The full playbook is here:
+Подробный playbook по поломкам:
 
 ```text
 docs/fault-injection-playbook.md
 ```
 
-## Public Gateway Routes
+## Основные gateway routes
 
-| Route | Upstream |
+Все внешние API-запросы идут через `nginx` на `http://localhost:8080`.
+
+| Route | Куда проксируется |
 | --- | --- |
 | `/api/users` | `user-service /users` |
 | `/api/products` | `product-service /products` |
@@ -187,11 +296,22 @@ docs/fault-injection-playbook.md
 | `/api/payments/test-controls/payment-mode` | `payment-service /test-controls/payment-mode` |
 | `/api/notifications` | `notification-service /notifications` |
 
-Each service also exposes `/health`, `/ready`, and `/metrics`; through the gateway use routes like `/api/orders/ready` and `/api/orders/metrics`.
+У каждого сервиса есть:
 
-## Observability
+- `/health` - процесс жив;
+- `/ready` - сервис готов принимать рабочие запросы;
+- `/metrics` - метрики для Prometheus.
 
-Prometheus scrapes these internal targets every 5 seconds:
+Через gateway это выглядит так:
+
+```text
+http://localhost:8080/api/orders/ready
+http://localhost:8080/api/orders/metrics
+```
+
+## Наблюдаемость
+
+Prometheus каждые 5 секунд собирает метрики с внутренних сервисов:
 
 ```text
 user-service:8000/metrics
@@ -201,44 +321,77 @@ payment-service:8000/metrics
 notification-service:8000/metrics
 ```
 
-Grafana is provisioned automatically with the `Prometheus` datasource and the `Microservices QA Lab Overview` dashboard.
+Grafana автоматически получает datasource `Prometheus` и готовый dashboard `Microservices QA Lab Overview`.
 
-## Useful Commands
+Для тестировщика это полезно, потому что можно связать действие пользователя с техническим эффектом:
 
-```bash
+- создали заказ - выросло количество запросов;
+- включили payment timeout - выросла latency;
+- остановили сервис - появились ошибки;
+- восстановили стенд - метрики вернулись к норме.
+
+## Полезные команды
+
+Посмотреть логи `order-service`:
+
+```powershell
 docker compose logs -f order-service
+```
+
+Посмотреть логи `notification-service`:
+
+```powershell
 docker compose logs -f notification-service
+```
+
+Проверить контейнеры:
+
+```powershell
 docker compose ps
+```
+
+Создать тестовые данные:
+
+```powershell
 python scripts/seed-data.py
+```
+
+Посмотреть метрики заказов через gateway:
+
+```powershell
 curl http://localhost:8080/api/orders/metrics
 ```
 
-## QA Features
+## Что можно тренировать как QA
 
-- Payment test control: `success`, `failure`, `timeout`, `random`.
-- Product cache visibility through `X-Cache: HIT` and `X-Cache: MISS`.
-- RabbitMQ event topology with durable queue and DLQ.
-- Notification idempotency through unique `event_id`.
-- Polling-based eventual consistency tests.
-- Pydantic contract models for user, product, and order event payloads.
-- Structured JSON logs with `X-Request-ID`.
-- Prometheus metrics and a preconfigured Grafana overview dashboard.
+- Проверка UI магазина от лица пользователя.
+- Проверка QA Dashboard как внутреннего инструмента тестировщика.
+- API-тестирование пользователей, товаров, заказов, платежей и уведомлений.
+- Проверка status codes: `200`, `201`, `400`, `404`, `409`, `422`, `500`.
+- Проверка Redis cache через `X-Cache: HIT` и `X-Cache: MISS`.
+- Проверка RabbitMQ events, очередей и DLQ.
+- Проверка eventual consistency: заказ создан сразу, уведомление приходит позже.
+- Проверка идемпотентности уведомлений через уникальный `event_id`.
+- Проверка логов с `X-Request-ID`.
+- Проверка метрик Prometheus и dashboard в Grafana.
+- Проверка отказов через fault injection.
+- Подготовка тестовой документации: test plan, checklist, test cases, bug reports, test summary.
 
-## Known Limitations
+## Известные ограничения
 
-- Database schema is created with SQLAlchemy `create_all`; Alembic is intentionally omitted in this first version.
-- Product stock is validated during order creation but not reserved or decremented.
-- Payment records are stored in memory because the service is a controlled testing dependency.
-- Resilience is visible and deterministic, but there is no circuit breaker library yet.
-- Logs are available through Docker JSON stdout; centralized log aggregation is intentionally left for a later Loki or ELK step.
+- Схемы баз создаются через SQLAlchemy `create_all`; Alembic пока не используется.
+- Остаток товара проверяется при создании заказа, но не резервируется и не уменьшается.
+- `payment-service` хранит платежи в памяти, потому что это учебная контролируемая зависимость.
+- Отказы моделируются детерминированно, но circuit breaker библиотека пока не добавлена.
+- Логи доступны через Docker stdout; централизованный сбор логов через Loki или ELK можно добавить позже.
 
-## Suggested Next Improvements
+## Возможные следующие улучшения
 
-- Add a Kafka variant of the async flow.
-- Add Pact contract tests.
-- Add OpenTelemetry tracing.
-- Add Loki log aggregation.
-- Add Sentry error tracking.
-- Add GitHub Actions.
-- Add richer Docker Compose test profiles.
-- Add mutation and fault-injection scenarios.
+- Добавить Kafka-вариант асинхронного flow.
+- Добавить Pact contract tests.
+- Добавить OpenTelemetry tracing.
+- Добавить Loki для логов.
+- Добавить Sentry для ошибок frontend/backend.
+- Добавить GitHub Actions.
+- Добавить Docker Compose profiles для разных режимов запуска.
+- Добавить больше mutation и fault-injection сценариев.
