@@ -2,96 +2,108 @@ const STORE_KEY = "microservices-qa-lab-store";
 
 const demoProducts = [
   {
-    name: "Aurora Task Lamp",
-    description: "A compact brass desk lamp with warm dimmable light for focused evening work.",
+    name: "Настольная лампа Aurora",
+    legacyName: "Aurora Task Lamp",
+    description: "Компактная латунная лампа с теплым регулируемым светом для вечерней работы.",
     price: "48.00",
     stock: 16,
     category: "workspace",
     image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=80",
   },
   {
-    name: "Harbor Canvas Weekender",
-    description: "Structured carryall for short trips, chargers, notebooks, and daily essentials.",
+    name: "Дорожная сумка Harbor",
+    legacyName: "Harbor Canvas Weekender",
+    description: "Плотная сумка для коротких поездок, зарядок, блокнотов и ежедневных вещей.",
     price: "72.50",
     stock: 10,
     category: "travel",
     image: "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?auto=format&fit=crop&w=900&q=80",
   },
   {
-    name: "EchoStone Portable Speaker",
-    description: "Minimal wireless speaker with deep sound for kitchens, desks, and small rooms.",
+    name: "Портативная колонка EchoStone",
+    legacyName: "EchoStone Portable Speaker",
+    description: "Минималистичная беспроводная колонка с глубоким звуком для кухни, стола и небольших комнат.",
     price: "96.00",
     stock: 11,
     category: "audio",
     image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=900&q=80",
   },
   {
-    name: "Meridian Notebook Trio",
-    description: "Three lay-flat notebooks with smooth paper for planning, sketches, and field notes.",
+    name: "Набор блокнотов Meridian",
+    legacyName: "Meridian Notebook Trio",
+    description: "Три блокнота с плотной гладкой бумагой для планов, заметок и быстрых зарисовок.",
     price: "28.90",
     stock: 34,
     category: "workspace",
     image: "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=900&q=80",
   },
   {
-    name: "Ember Pour-Over Set",
-    description: "Ceramic dripper, glass server, and filters for slow coffee mornings.",
+    name: "Кофейный набор Ember",
+    legacyName: "Ember Pour-Over Set",
+    description: "Керамическая воронка, стеклянный сервер и фильтры для неспешного утреннего кофе.",
     price: "68.00",
     stock: 8,
     category: "home",
     image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80",
   },
   {
-    name: "Orbit Tech Organizer",
-    description: "Slim pouch with divided storage for cables, adapters, cards, and USB drives.",
+    name: "Органайзер для техники Orbit",
+    legacyName: "Orbit Tech Organizer",
+    description: "Тонкий органайзер с отделениями для кабелей, адаптеров, карт и USB-накопителей.",
     price: "39.75",
     stock: 21,
     category: "travel",
     image: "https://images.unsplash.com/photo-1622560480654-d96214fdc887?auto=format&fit=crop&w=900&q=80",
   },
   {
-    name: "Alpine Insulated Bottle",
-    description: "Matte steel bottle that keeps water cold through commute days and long sessions.",
+    name: "Термобутылка Alpine",
+    legacyName: "Alpine Insulated Bottle",
+    description: "Матовая стальная бутылка, которая сохраняет воду холодной в дороге и во время долгих сессий.",
     price: "31.00",
     stock: 24,
     category: "travel",
     image: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=900&q=80",
   },
   {
-    name: "Solace Linen Throw",
-    description: "Soft woven throw for a reading chair, sofa corner, or relaxed home workspace.",
+    name: "Льняной плед Solace",
+    legacyName: "Solace Linen Throw",
+    description: "Мягкий тканый плед для кресла, дивана или спокойного домашнего рабочего места.",
     price: "54.00",
     stock: 13,
     category: "home",
     image: "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=900&q=80",
   },
   {
-    name: "Pixel Aluminum Stand",
-    description: "Angled laptop stand that lifts the screen and clears space for keyboard work.",
+    name: "Алюминиевая подставка Pixel",
+    legacyName: "Pixel Aluminum Stand",
+    description: "Наклонная подставка для ноутбука, которая поднимает экран и освобождает место на столе.",
     price: "63.00",
     stock: 17,
     category: "workspace",
     image: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=900&q=80",
   },
   {
-    name: "Luna Glass Diffuser",
-    description: "Quiet reed diffuser with a clean glass vessel and soft cedar citrus notes.",
+    name: "Аромадиффузор Luna",
+    legacyName: "Luna Glass Diffuser",
+    description: "Стеклянный диффузор с мягким ароматом кедра и цитруса для дома и рабочего места.",
     price: "29.50",
     stock: 19,
     category: "home",
     image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=900&q=80",
   },
   {
-    name: "Studio Monitor Headphones",
-    description: "Closed-back headphones for focused listening, editing, and late-night calls.",
+    name: "Студийные наушники Monitor",
+    legacyName: "Studio Monitor Headphones",
+    description: "Закрытые наушники для фокусной работы, звонков, монтажа и спокойного прослушивания.",
     price: "119.00",
     stock: 6,
     category: "audio",
     image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80",
   },
   {
-    name: "Terra Desktop Plant Kit",
-    description: "Small planter, soil pod, and hardy green cutting for brightening a desk.",
+    name: "Настольный набор Terra",
+    legacyName: "Terra Desktop Plant Kit",
+    description: "Небольшое кашпо, грунтовая капсула и неприхотливое растение для рабочего стола.",
     price: "22.00",
     stock: 28,
     category: "home",
@@ -101,153 +113,179 @@ const demoProducts = [
 
 const fixtureProductLooks = [
   {
-    displayName: "Slate Docking Station",
-    description: "USB-C desk hub with compact ports for a cleaner workstation.",
+    displayName: "Док-станция Slate",
+    description: "Компактный USB-C хаб для аккуратного рабочего места и быстрых подключений.",
     category: "workspace",
     image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Canyon Trail Sneakers",
-    description: "Lightweight everyday sneakers with a textured sole and travel-ready profile.",
+    displayName: "Кроссовки Canyon Trail",
+    description: "Легкие повседневные кроссовки с рельефной подошвой для прогулок и поездок.",
     category: "travel",
     image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Nomad Travel Backpack",
-    description: "Weather-resistant backpack with separate laptop and accessory compartments.",
+    displayName: "Рюкзак Nomad",
+    description: "Влагостойкий рюкзак с отделением для ноутбука и карманами для аксессуаров.",
     category: "travel",
     image: "https://images.unsplash.com/photo-1581605405669-fcdf81165afa?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Aero Smart Watch",
-    description: "Minimal watch for activity tracking, timers, and quick status checks.",
+    displayName: "Смарт-часы Aero",
+    description: "Минималистичные часы для активности, таймеров и быстрых уведомлений.",
     category: "workspace",
     image: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Cobalt Instant Camera",
-    description: "Compact camera for quick snapshots, events, and team wall photos.",
+    displayName: "Камера Cobalt Instant",
+    description: "Компактная камера для быстрых снимков, встреч и командных фото.",
     category: "home",
     image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Wave Noise-Canceling Buds",
-    description: "Pocket-size earbuds with clean calls and a compact charging case.",
+    displayName: "Наушники Wave Buds",
+    description: "Компактные беспроводные наушники с чистыми звонками и зарядным кейсом.",
     category: "audio",
     image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Moss Ceramic Mug",
-    description: "Weighted stoneware mug with a satin glaze and comfortable handle.",
+    displayName: "Керамическая кружка Moss",
+    description: "Увесистая керамическая кружка с матовой глазурью и удобной ручкой.",
     category: "home",
     image: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Prism Desk Clock",
-    description: "Analog desk clock with a quiet sweep and a small walnut base.",
+    displayName: "Настольные часы Prism",
+    description: "Аналоговые часы с тихим ходом и небольшой ореховой подставкой.",
     category: "workspace",
     image: "https://images.unsplash.com/photo-1563861826100-9cb868fdbe1c?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Summit Packing Cubes",
-    description: "Three zip pouches for separating travel clothes, cables, and small gear.",
+    displayName: "Дорожные органайзеры Summit",
+    description: "Три чехла на молнии для одежды, кабелей и мелких вещей в поездке.",
     category: "travel",
     image: "https://images.unsplash.com/photo-1581553680321-4fffae59fccd?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Vela Table Lantern",
-    description: "Rechargeable lantern with soft ambient light for shelves and bedside tables.",
+    displayName: "Настольный фонарь Vela",
+    description: "Перезаряжаемый фонарь с мягким светом для полок, стола и прикроватной зоны.",
     category: "home",
     image: "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Aurora Task Lamp",
-    description: "A compact brass desk lamp with warm dimmable light for focused evening work.",
+    displayName: "Настольная лампа Aurora",
+    description: "Компактная латунная лампа с теплым регулируемым светом для вечерней работы.",
     category: "workspace",
     image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Harbor Canvas Weekender",
-    description: "Structured carryall for short trips, chargers, notebooks, and daily essentials.",
+    displayName: "Дорожная сумка Harbor",
+    description: "Плотная сумка для коротких поездок, зарядок, блокнотов и ежедневных вещей.",
     category: "travel",
     image: "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "EchoStone Portable Speaker",
-    description: "Minimal wireless speaker with deep sound for kitchens, desks, and small rooms.",
+    displayName: "Портативная колонка EchoStone",
+    description: "Минималистичная беспроводная колонка с глубоким звуком для кухни, стола и небольших комнат.",
     category: "audio",
     image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Meridian Notebook Trio",
-    description: "Three lay-flat notebooks with smooth paper for planning, sketches, and field notes.",
+    displayName: "Набор блокнотов Meridian",
+    description: "Три блокнота с плотной гладкой бумагой для планов, заметок и быстрых зарисовок.",
     category: "workspace",
     image: "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Ember Pour-Over Set",
-    description: "Ceramic dripper, glass server, and filters for slow coffee mornings.",
+    displayName: "Кофейный набор Ember",
+    description: "Керамическая воронка, стеклянный сервер и фильтры для неспешного утреннего кофе.",
     category: "home",
     image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Orbit Tech Organizer",
-    description: "Slim pouch with divided storage for cables, adapters, cards, and USB drives.",
+    displayName: "Органайзер для техники Orbit",
+    description: "Тонкий органайзер с отделениями для кабелей, адаптеров, карт и USB-накопителей.",
     category: "travel",
     image: "https://images.unsplash.com/photo-1622560480654-d96214fdc887?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Alpine Insulated Bottle",
-    description: "Matte steel bottle that keeps water cold through commute days and long sessions.",
+    displayName: "Термобутылка Alpine",
+    description: "Матовая стальная бутылка, которая сохраняет воду холодной в дороге и во время долгих сессий.",
     category: "travel",
     image: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Solace Linen Throw",
-    description: "Soft woven throw for a reading chair, sofa corner, or relaxed home workspace.",
+    displayName: "Льняной плед Solace",
+    description: "Мягкий тканый плед для кресла, дивана или спокойного домашнего рабочего места.",
     category: "home",
     image: "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Pixel Aluminum Stand",
-    description: "Angled laptop stand that lifts the screen and clears space for keyboard work.",
+    displayName: "Алюминиевая подставка Pixel",
+    description: "Наклонная подставка для ноутбука, которая поднимает экран и освобождает место на столе.",
     category: "workspace",
     image: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Luna Glass Diffuser",
-    description: "Quiet reed diffuser with a clean glass vessel and soft cedar citrus notes.",
+    displayName: "Аромадиффузор Luna",
+    description: "Стеклянный диффузор с мягким ароматом кедра и цитруса для дома и рабочего места.",
     category: "home",
     image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Studio Monitor Headphones",
-    description: "Closed-back headphones for focused listening, editing, and late-night calls.",
+    displayName: "Студийные наушники Monitor",
+    description: "Закрытые наушники для фокусной работы, звонков, монтажа и спокойного прослушивания.",
     category: "audio",
     image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80",
   },
   {
-    displayName: "Terra Desktop Plant Kit",
-    description: "Small planter, soil pod, and hardy green cutting for brightening a desk.",
+    displayName: "Настольный набор Terra",
+    description: "Небольшое кашпо, грунтовая капсула и неприхотливое растение для рабочего стола.",
     category: "home",
     image: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=900&q=80",
   },
 ];
 
 const fixtureVariants = [
-  "Graphite",
-  "Olive",
-  "Marine",
-  "Copper",
-  "Ivory",
-  "Indigo",
-  "Cedar",
-  "Quartz",
-  "Juniper",
-  "Amber",
-  "Nordic",
-  "Sage",
+  "Графит",
+  "Олива",
+  "Марин",
+  "Медь",
+  "Айвори",
+  "Индиго",
+  "Кедр",
+  "Кварц",
+  "Можжевельник",
+  "Янтарь",
+  "Нордик",
+  "Шалфей",
 ];
+
+const categoryLabels = {
+  workspace: "Рабочее место",
+  home: "Дом",
+  travel: "Путешествия",
+  audio: "Аудио",
+};
+
+const orderStatusLabels = {
+  created: "Создан",
+  paid: "Оплачен",
+  payment_failed: "Платеж отклонен",
+  cancelled: "Отменен",
+};
+
+const accountStatusLabels = {
+  active: "Активен",
+  blocked: "Заблокирован",
+  deleted: "Удален",
+};
+
+const eventTypeLabels = {
+  "order.created": "Заказ создан",
+  "order.paid": "Заказ оплачен",
+  "order.cancelled": "Заказ отменен",
+};
 
 const state = {
   account: null,
@@ -351,12 +389,15 @@ function productCode(product) {
 }
 
 function productMeta(product, index = 0) {
-  const matched = demoProducts.find((item) => item.name.toLowerCase() === product.name.toLowerCase());
+  const productName = product.name.toLowerCase();
+  const matched = demoProducts.find(
+    (item) => item.name.toLowerCase() === productName || item.legacyName?.toLowerCase() === productName,
+  );
   if (matched) {
     return {
       ...matched,
       displayName: matched.name,
-      displayDescription: product.description || matched.description,
+      displayDescription: matched.description,
       isFixture: false,
     };
   }
@@ -399,7 +440,8 @@ function filteredProducts() {
       String(product.description || "").toLowerCase().includes(search) ||
       product.meta.displayName.toLowerCase().includes(search) ||
       product.meta.displayDescription.toLowerCase().includes(search) ||
-      product.meta.category.toLowerCase().includes(search);
+      product.meta.category.toLowerCase().includes(search) ||
+      String(categoryLabels[product.meta.category] || "").toLowerCase().includes(search);
     const matchesCategory = category === "all" || product.meta.category === category;
     return matchesSearch && matchesCategory;
   });
@@ -435,10 +477,10 @@ async function refreshHealth() {
   );
 
   const ok = results.every(Boolean);
-  $("#storeHealthLabel").textContent = ok ? "Store systems operational" : "Store systems degraded";
+  $("#storeHealthLabel").textContent = ok ? "Магазин работает" : "Есть проблемы с сервисами";
   $("#storeHealthDetail").textContent = ok
-    ? "Catalog, checkout, payments, and notifications are ready"
-    : "Open the QA Dashboard and inspect service readiness";
+    ? "Каталог, оформление заказа, платежи и уведомления готовы"
+    : "Открой QA Dashboard и проверь readiness сервисов";
   $("#storeHealthLabel").style.color = ok ? "var(--ok)" : "var(--bad)";
 }
 
@@ -461,7 +503,7 @@ async function seedCatalog() {
   $("#seedCatalog").disabled = true;
   try {
     for (const product of demoProducts) {
-      if (existingNames.has(product.name.toLowerCase())) continue;
+      if (existingNames.has(product.name.toLowerCase()) || existingNames.has(product.legacyName.toLowerCase())) continue;
       await api("/api/products", {
         method: "POST",
         body: JSON.stringify({
@@ -474,7 +516,7 @@ async function seedCatalog() {
       });
     }
     await loadProducts();
-    showMessage("Demo catalog is ready.", "ok");
+    showMessage("Демо-каталог готов.", "ok");
   } finally {
     $("#seedCatalog").disabled = false;
   }
@@ -486,7 +528,7 @@ function renderCatalog() {
   if (!products.length) {
     grid.innerHTML = `
       <div class="empty-state">
-        <span>No products match the current filters. Seed the demo catalog or clear search.</span>
+        <span>По текущим фильтрам ничего не найдено. Заполни демо-каталог или очисти поиск.</span>
       </div>
     `;
     return;
@@ -504,11 +546,11 @@ function renderCatalog() {
             </div>
             <p class="product-description">${escapeHtml(product.meta.displayDescription)}</p>
             <div class="product-meta">
-              ${badge(product.meta.category, "muted")}
-              ${badge(`${product.stock} in stock`, product.stock > 5 ? "ok" : "warn")}
+              ${badge(categoryLabels[product.meta.category] || product.meta.category, "muted")}
+              ${badge(stockLabel(product.stock), product.stock > 5 ? "ok" : "warn")}
             </div>
             <button type="button" data-add-product="${product.id}" ${product.stock <= 0 ? "disabled" : ""}>
-              Add to cart
+              В корзину
             </button>
           </div>
         </article>
@@ -523,6 +565,10 @@ function renderCatalog() {
 
 function badge(text, kind) {
   return `<span class="badge ${kind}">${escapeHtml(text)}</span>`;
+}
+
+function stockLabel(stock) {
+  return stock > 0 ? `${stock} в наличии` : "Нет в наличии";
 }
 
 function addToCart(productId) {
@@ -568,11 +614,11 @@ function renderCart() {
   const totalItems = rows.reduce((sum, row) => sum + row.quantity, 0);
   const total = rows.reduce((sum, row) => sum + Number(row.product.price) * row.quantity, 0);
 
-  $("#cartSummary").textContent = totalItems ? `${totalItems} item${totalItems === 1 ? "" : "s"}` : "No items yet";
+  $("#cartSummary").textContent = totalItems ? `${totalItems} шт. в корзине` : "Пока пусто";
   $("#cartTotal").textContent = money(total);
 
   if (!rows.length) {
-    $("#cartItems").innerHTML = '<div class="empty-state">Add products from the catalog.</div>';
+    $("#cartItems").innerHTML = '<div class="empty-state">Добавь товары из каталога.</div>';
     $("#checkoutButton").disabled = true;
     return;
   }
@@ -587,11 +633,11 @@ function renderCart() {
             <span>${money(Number(product.price) * quantity)}</span>
           </div>
           <div class="cart-item-row">
-            <small>${money(product.price)} each</small>
+            <small>${money(product.price)} за шт.</small>
             <div class="quantity-control">
-              <button type="button" data-cart-dec="${product.id}" aria-label="Decrease ${escapeHtml(product.meta.displayName)}">-</button>
+              <button type="button" data-cart-dec="${product.id}" aria-label="Уменьшить количество: ${escapeHtml(product.meta.displayName)}">-</button>
               <span>${quantity}</span>
-              <button type="button" data-cart-inc="${product.id}" aria-label="Increase ${escapeHtml(product.meta.displayName)}">+</button>
+              <button type="button" data-cart-inc="${product.id}" aria-label="Увеличить количество: ${escapeHtml(product.meta.displayName)}">+</button>
             </div>
           </div>
         </div>
@@ -619,9 +665,9 @@ async function createAccount(event) {
     saveLocalState();
     renderAccount();
     await loadOrders();
-    showMessage("Account created. You can checkout now.", "ok");
+    showMessage("Профиль создан. Теперь можно оформить заказ.", "ok");
   } catch (error) {
-    showMessage(error.message, "bad");
+    showMessage(`Ошибка создания профиля: ${error.message}`, "bad");
   } finally {
     button.disabled = false;
   }
@@ -629,32 +675,32 @@ async function createAccount(event) {
 
 function renderAccount() {
   if (!state.account) {
-    $("#accountBadge").textContent = "Guest";
+    $("#accountBadge").textContent = "Гость";
     $("#accountBadge").className = "badge muted";
-    $("#accountDetails").innerHTML = "<dt>Status</dt><dd>No account selected</dd>";
+    $("#accountDetails").innerHTML = "<dt>Статус</dt><dd>Профиль не выбран</dd>";
     return;
   }
 
-  $("#accountBadge").textContent = state.account.status;
+  $("#accountBadge").textContent = accountStatusLabels[state.account.status] || state.account.status;
   $("#accountBadge").className = `badge ${state.account.status === "active" ? "ok" : "warn"}`;
   $("#accountDetails").innerHTML = `
-    <dt>Name</dt><dd>${escapeHtml(state.account.full_name)}</dd>
+    <dt>Имя</dt><dd>${escapeHtml(state.account.full_name)}</dd>
     <dt>Email</dt><dd>${escapeHtml(state.account.email)}</dd>
-    <dt>User ID</dt><dd><code>${escapeHtml(state.account.id)}</code></dd>
-    <dt>Status</dt><dd>${escapeHtml(state.account.status)}</dd>
+    <dt>ID пользователя</dt><dd><code>${escapeHtml(state.account.id)}</code></dd>
+    <dt>Статус</dt><dd>${escapeHtml(accountStatusLabels[state.account.status] || state.account.status)}</dd>
   `;
 }
 
 async function checkout() {
   if (!state.account) {
-    showMessage("Create an account before checkout.", "bad");
+    showMessage("Перед оформлением заказа создай профиль покупателя.", "bad");
     location.hash = "#account";
     return;
   }
 
   const rows = cartRows();
   if (!rows.length) {
-    showMessage("Your cart is empty.", "bad");
+    showMessage("Корзина пустая.", "bad");
     return;
   }
 
@@ -671,12 +717,15 @@ async function checkout() {
       }),
     });
     clearCart();
-    showMessage(`Order ${body.id.slice(0, 8)} created with status ${body.status}.`, body.status === "paid" ? "ok" : "bad");
+    showMessage(
+      `Заказ ${body.id.slice(0, 8)} создан. Статус: ${orderStatusLabels[body.status] || body.status}.`,
+      body.status === "paid" ? "ok" : "bad",
+    );
     await waitForNotifications(body.id);
     await loadOrders();
     location.hash = "#orders";
   } catch (error) {
-    showMessage(error.message, "bad");
+    showMessage(`Ошибка оформления заказа: ${error.message}`, "bad");
   } finally {
     $("#checkoutButton").disabled = false;
   }
@@ -714,11 +763,11 @@ async function loadNotifications(orderId) {
 function renderOrders() {
   const list = $("#ordersList");
   if (!state.account) {
-    list.innerHTML = '<div class="empty-state">Create an account to see order history.</div>';
+    list.innerHTML = '<div class="empty-state">Создай профиль, чтобы увидеть историю заказов.</div>';
     return;
   }
   if (!state.orders.length) {
-    list.innerHTML = '<div class="empty-state">No orders yet. Checkout from the cart to create one.</div>';
+    list.innerHTML = '<div class="empty-state">Заказов пока нет. Добавь товары в корзину и оформи покупку.</div>';
     return;
   }
 
@@ -729,10 +778,10 @@ function renderOrders() {
         <article class="order-card">
           <div class="order-topline">
             <div>
-              <h3>Order <code>${escapeHtml(order.id)}</code></h3>
+              <h3>Заказ <code>${escapeHtml(order.id)}</code></h3>
               <p>${new Date(order.created_at).toLocaleString()}</p>
             </div>
-            ${badge(order.status, order.status === "paid" ? "ok" : order.status === "payment_failed" ? "bad" : "warn")}
+            ${badge(orderStatusLabels[order.status] || order.status, order.status === "paid" ? "ok" : order.status === "payment_failed" ? "bad" : "warn")}
           </div>
           <div class="order-items">
             ${order.items
@@ -749,7 +798,7 @@ function renderOrders() {
               .join("")}
           </div>
           <div class="cart-total">
-            <span>Total</span>
+            <span>Итого</span>
             <strong>${money(order.total_amount)}</strong>
           </div>
           <div class="event-list">
@@ -759,13 +808,13 @@ function renderOrders() {
                     .map(
                       (event) => `
                         <div class="event-line">
-                          <span>${escapeHtml(event.event_type)}</span>
+                          <span>${escapeHtml(eventTypeLabels[event.event_type] || event.event_type)}</span>
                           <small>${new Date(event.created_at).toLocaleTimeString()}</small>
                         </div>
                       `,
                     )
                     .join("")
-                : '<div class="event-line"><span>No notification event loaded yet</span></div>'
+                : '<div class="event-line"><span>Уведомление еще не загружено</span></div>'
             }
           </div>
         </article>
@@ -828,4 +877,4 @@ fillDefaults();
 bindEvents();
 renderAccount();
 renderCart();
-boot().catch((error) => showMessage(error.message, "bad"));
+boot().catch((error) => showMessage(`Ошибка загрузки магазина: ${error.message}`, "bad"));
