@@ -1,0 +1,17 @@
+services:
+  test-runner:
+    image: python:3.12-slim
+    working_dir: /lab
+    volumes:
+      - .:/lab
+    environment:
+      GATEWAY_URL: http://nginx
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+    command: sh -c "pip install --no-cache-dir -r requirements-dev.txt && pytest tests/"
+    depends_on:
+      nginx:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - lab-net

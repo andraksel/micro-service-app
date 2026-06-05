@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>microservices-qa-lab</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Lab navigation">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">M</span>
+          <div>
+            <h1>microservices-qa-lab</h1>
+            <p>QA dashboard</p>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <a href="#status">Status</a>
+          <a href="#tools">Tools</a>
+          <a href="#payment">Payment</a>
+          <a href="#entities">Entities</a>
+          <a href="#order">Order</a>
+          <a href="#notifications">Notifications</a>
+        </nav>
+
+        <div class="request-box">
+          <label for="requestId">X-Request-ID</label>
+          <div class="inline-control">
+            <input id="requestId" type="text" autocomplete="off" />
+            <button id="newRequestId" class="icon-button" type="button" title="Generate request ID" aria-label="Generate request ID">#</button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <section id="status" class="section">
+          <div class="section-header">
+            <div>
+              <h2>Service Status</h2>
+              <p>Gateway and service readiness</p>
+            </div>
+            <button id="refreshStatus" type="button">Refresh</button>
+          </div>
+
+          <div id="serviceGrid" class="status-grid" aria-live="polite"></div>
+        </section>
+
+        <section id="tools" class="section">
+          <div class="section-header">
+            <div>
+              <h2>Web Tools</h2>
+              <p>Dashboards, queues, metrics, and API docs</p>
+            </div>
+          </div>
+
+          <div class="tool-grid">
+            <a class="tool-link" href="http://localhost:3000" target="_blank" rel="noreferrer">
+              <strong>Grafana</strong>
+              <span>admin / admin</span>
+            </a>
+            <a class="tool-link" href="http://localhost:9090" target="_blank" rel="noreferrer">
+              <strong>Prometheus</strong>
+              <span>targets and PromQL</span>
+            </a>
+            <a class="tool-link" href="http://localhost:15672" target="_blank" rel="noreferrer">
+              <strong>RabbitMQ</strong>
+              <span>guest / guest</span>
+            </a>
+            <a class="tool-link" href="/store.html" target="_blank" rel="noreferrer">
+              <strong>Customer Store</strong>
+              <span>real storefront UI</span>
+            </a>
+            <a class="tool-link" href="/api/orders/metrics" target="_blank" rel="noreferrer">
+              <strong>Order metrics</strong>
+              <span>gateway proxy</span>
+            </a>
+            <a class="tool-link" href="http://localhost:8001/docs" target="_blank" rel="noreferrer">
+              <strong>User API docs</strong>
+              <span>Swagger UI</span>
+            </a>
+            <a class="tool-link" href="http://localhost:8002/docs" target="_blank" rel="noreferrer">
+              <strong>Product API docs</strong>
+              <span>Swagger UI</span>
+            </a>
+            <a class="tool-link" href="http://localhost:8003/docs" target="_blank" rel="noreferrer">
+              <strong>Order API docs</strong>
+              <span>Swagger UI</span>
+            </a>
+            <a class="tool-link" href="http://localhost:8004/docs" target="_blank" rel="noreferrer">
+              <strong>Payment API docs</strong>
+              <span>Swagger UI</span>
+            </a>
+            <a class="tool-link" href="http://localhost:8005/docs" target="_blank" rel="noreferrer">
+              <strong>Notification API docs</strong>
+              <span>Swagger UI</span>
+            </a>
+          </div>
+        </section>
+
+        <section id="payment" class="section">
+          <div class="section-header">
+            <div>
+              <h2>Payment Control</h2>
+              <p>Local dependency behavior</p>
+            </div>
+            <div id="paymentModeStatus" class="pill neutral">unknown</div>
+          </div>
+
+          <div class="segmented" role="group" aria-label="Payment mode">
+            <button type="button" data-payment-mode="success">success</button>
+            <button type="button" data-payment-mode="failure">failure</button>
+            <button type="button" data-payment-mode="timeout">timeout</button>
+            <button type="button" data-payment-mode="random">random</button>
+          </div>
+        </section>
+
+        <section id="entities" class="section split">
+          <div class="panel">
+            <div class="panel-header">
+              <h2>User</h2>
+              <span id="selectedUserBadge" class="pill neutral">not selected</span>
+            </div>
+
+            <form id="userForm" class="form-grid">
+              <label>
+                Email
+                <input id="userEmail" type="email" required />
+              </label>
+              <label>
+                Full name
+                <input id="userFullName" type="text" required value="QA Test User" />
+              </label>
+              <button type="submit">Create user</button>
+            </form>
+
+            <pre id="userOutput" class="output" aria-live="polite"></pre>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Product</h2>
+              <span id="selectedProductBadge" class="pill neutral">not selected</span>
+            </div>
+
+            <form id="productForm" class="form-grid">
+              <label>
+                Name
+                <input id="productName" type="text" required value="QA Product" />
+              </label>
+              <label>
+                Price
+                <input id="productPrice" type="number" min="0.01" step="0.01" required value="19.99" />
+              </label>
+              <label>
+                Stock
+                <input id="productStock" type="number" min="0" step="1" required value="10" />
+              </label>
+              <label>
+                Description
+                <input id="productDescription" type="text" value="Created from QA dashboard" />
+              </label>
+              <div class="button-row">
+                <button type="submit">Create product</button>
+                <button id="checkCache" type="button" class="secondary">Check cache</button>
+              </div>
+            </form>
+
+            <div id="cacheResult" class="cache-result"></div>
+            <pre id="productOutput" class="output" aria-live="polite"></pre>
+          </div>
+        </section>
+
+        <section id="order" class="section">
+          <div class="section-header">
+            <div>
+              <h2>Order Flow</h2>
+              <p>User + product + payment + RabbitMQ</p>
+            </div>
+            <span id="selectedOrderBadge" class="pill neutral">no order</span>
+          </div>
+
+          <form id="orderForm" class="order-grid">
+            <label>
+              User ID
+              <input id="orderUserId" type="text" required />
+            </label>
+            <label>
+              Product ID
+              <input id="orderProductId" type="text" required />
+            </label>
+            <label>
+              Quantity
+              <input id="orderQuantity" type="number" min="1" step="1" required value="1" />
+            </label>
+            <button type="submit">Create order</button>
+          </form>
+
+          <pre id="orderOutput" class="output" aria-live="polite"></pre>
+        </section>
+
+        <section id="notifications" class="section">
+          <div class="section-header">
+            <div>
+              <h2>Notifications</h2>
+              <p>Async order events</p>
+            </div>
+            <div class="button-row">
+              <button id="loadNotifications" type="button">Refresh</button>
+              <button id="filterOrderNotifications" type="button" class="secondary">Current order</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Event</th>
+                  <th>Order</th>
+                  <th>User</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody id="notificationsBody">
+                <tr>
+                  <td colspan="5" class="empty">No data loaded</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <div>
+              <h2>Activity</h2>
+              <p>Recent dashboard calls</p>
+            </div>
+            <button id="clearActivity" type="button" class="secondary">Clear</button>
+          </div>
+          <div id="activityLog" class="activity-log" aria-live="polite"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>

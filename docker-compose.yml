@@ -1,0 +1,299 @@
+services:
+  user-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: user_db
+      POSTGRES_USER: user_service
+      POSTGRES_PASSWORD: user_service
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_service -d user_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - lab-net
+
+  product-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: product_db
+      POSTGRES_USER: product_service
+      POSTGRES_PASSWORD: product_service
+    volumes:
+      - product-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U product_service -d product_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - lab-net
+
+  order-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: order_db
+      POSTGRES_USER: order_service
+      POSTGRES_PASSWORD: order_service
+    volumes:
+      - order-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U order_service -d order_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - lab-net
+
+  notification-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: notification_db
+      POSTGRES_USER: notification_service
+      POSTGRES_PASSWORD: notification_service
+    volumes:
+      - notification-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U notification_service -d notification_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - lab-net
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - lab-net
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    entrypoint:
+      - /bin/sh
+      - -c
+      - printf '%s' "$$RABBITMQ_ERLANG_COOKIE" > /var/lib/rabbitmq/.erlang.cookie && chmod 400 /var/lib/rabbitmq/.erlang.cookie && chown -R rabbitmq:rabbitmq /var/lib/rabbitmq && exec gosu rabbitmq /opt/rabbitmq/sbin/rabbitmq-server
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_ERLANG_COOKIE: local-qa-lab-cookie
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+    networks:
+      - lab-net
+
+  user-service:
+    build:
+      context: ./services/user-service
+    environment:
+      SERVICE_NAME: user-service
+      DATABASE_URL: postgresql+psycopg://user_service:user_service@user-db:5432/user_db
+      LOG_LEVEL: INFO
+    ports:
+      - "${USER_SERVICE_PORT:-8001}:8000"
+    depends_on:
+      user-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready', timeout=2)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - lab-net
+
+  product-service:
+    build:
+      context: ./services/product-service
+    environment:
+      SERVICE_NAME: product-service
+      DATABASE_URL: postgresql+psycopg://product_service:product_service@product-db:5432/product_db
+      REDIS_URL: redis://redis:6379/0
+      CACHE_TTL_SECONDS: 60
+      LOG_LEVEL: INFO
+    ports:
+      - "${PRODUCT_SERVICE_PORT:-8002}:8000"
+    depends_on:
+      product-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready', timeout=2)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - lab-net
+
+  payment-service:
+    build:
+      context: ./services/payment-service
+    environment:
+      SERVICE_NAME: payment-service
+      PAYMENT_MODE: success
+      PAYMENT_TIMEOUT_SLEEP_SECONDS: 3.5
+      LOG_LEVEL: INFO
+    ports:
+      - "${PAYMENT_SERVICE_PORT:-8004}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready', timeout=2)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - lab-net
+
+  order-service:
+    build:
+      context: ./services/order-service
+    environment:
+      SERVICE_NAME: order-service
+      DATABASE_URL: postgresql+psycopg://order_service:order_service@order-db:5432/order_db
+      USER_SERVICE_BASE_URL: http://user-service:8000
+      PRODUCT_SERVICE_BASE_URL: http://product-service:8000
+      PAYMENT_SERVICE_BASE_URL: http://payment-service:8000
+      HTTP_TIMEOUT_SECONDS: 2
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      LOG_LEVEL: INFO
+    ports:
+      - "${ORDER_SERVICE_PORT:-8003}:8000"
+    depends_on:
+      order-db:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+      payment-service:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready', timeout=2)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - lab-net
+
+  notification-service:
+    build:
+      context: ./services/notification-service
+    environment:
+      SERVICE_NAME: notification-service
+      DATABASE_URL: postgresql+psycopg://notification_service:notification_service@notification-db:5432/notification_db
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      LOG_LEVEL: INFO
+    ports:
+      - "${NOTIFICATION_SERVICE_PORT:-8005}:8000"
+    depends_on:
+      notification-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/ready', timeout=2)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - lab-net
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "${GATEWAY_PORT:-8080}:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ui:/usr/share/nginx/html:ro
+    depends_on:
+      user-service:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+      payment-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - lab-net
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.console.libraries=/usr/share/prometheus/console_libraries
+      - --web.console.templates=/usr/share/prometheus/consoles
+    depends_on:
+      user-service:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+      payment-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+    networks:
+      - lab-net
+
+  grafana:
+    image: grafana/grafana:11.3.1
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - lab-net
+
+networks:
+  lab-net:
+    driver: bridge
+
+volumes:
+  user-db-data:
+  product-db-data:
+  order-db-data:
+  notification-db-data:
+  rabbitmq-data:
+  prometheus-data:
+  grafana-data:

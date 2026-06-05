@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Northwind QA Store</title>
+    <link rel="stylesheet" href="/store.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/store.html" aria-label="Northwind QA Store home">
+        <span class="brand-mark" aria-hidden="true">N</span>
+        <span>
+          <strong>Northwind QA Store</strong>
+          <small>microservices storefront</small>
+        </span>
+      </a>
+
+      <nav class="topnav" aria-label="Store navigation">
+        <a href="#catalog">Catalog</a>
+        <a href="#cart">Cart</a>
+        <a href="#orders">Orders</a>
+        <a href="#account">Account</a>
+        <a href="/">QA Dashboard</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="store-hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Live training storefront</p>
+          <h1>Shop the same system you test from the inside.</h1>
+          <p>
+            Browse products, build a cart, create an account, place orders, and watch the same flow appear in RabbitMQ,
+            notifications, logs, Prometheus, and Grafana.
+          </p>
+        </div>
+        <div class="hero-media" aria-label="Store shelves with products"></div>
+      </section>
+
+      <section class="status-strip" aria-live="polite">
+        <div>
+          <strong id="storeHealthLabel">Checking services</strong>
+          <span id="storeHealthDetail">Gateway, catalog, orders, payments, notifications</span>
+        </div>
+        <button id="refreshStore" type="button">Refresh store</button>
+      </section>
+
+      <section id="catalog" class="commerce-layout">
+        <div class="catalog-area">
+          <div class="section-heading">
+            <div>
+              <h2>Catalog</h2>
+              <p>Products are stored in product-service and cached through Redis.</p>
+            </div>
+            <button id="seedCatalog" type="button" class="secondary">Seed demo catalog</button>
+          </div>
+
+          <div class="catalog-toolbar">
+            <label>
+              Search
+              <input id="searchInput" type="search" placeholder="Search products" />
+            </label>
+            <label>
+              Category
+              <select id="categoryFilter">
+                <option value="all">All categories</option>
+                <option value="workspace">Workspace</option>
+                <option value="home">Home</option>
+                <option value="travel">Travel</option>
+                <option value="audio">Audio</option>
+              </select>
+            </label>
+            <label>
+              Sort
+              <select id="sortSelect">
+                <option value="newest">Newest first</option>
+                <option value="price-asc">Price: low to high</option>
+                <option value="price-desc">Price: high to low</option>
+                <option value="stock-desc">Stock: high to low</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="catalogGrid" class="catalog-grid" aria-live="polite"></div>
+        </div>
+
+        <aside id="cart" class="cart-panel" aria-label="Shopping cart">
+          <div class="panel-header">
+            <div>
+              <h2>Cart</h2>
+              <p id="cartSummary">No items yet</p>
+            </div>
+            <button id="clearCart" type="button" class="ghost">Clear</button>
+          </div>
+          <div id="cartItems" class="cart-items"></div>
+          <div class="cart-total">
+            <span>Total</span>
+            <strong id="cartTotal">$0.00</strong>
+          </div>
+          <button id="checkoutButton" type="button">Checkout</button>
+          <p class="cart-note">Payment result is controlled from the QA Dashboard payment sandbox.</p>
+        </aside>
+      </section>
+
+      <section id="account" class="account-section">
+        <div class="section-heading">
+          <div>
+            <h2>Account</h2>
+            <p>Create a shopper profile before checkout.</p>
+          </div>
+          <span id="accountBadge" class="badge muted">Guest</span>
+        </div>
+
+        <div class="account-grid">
+          <form id="accountForm" class="account-form">
+            <label>
+              Email
+              <input id="accountEmail" type="email" required />
+            </label>
+            <label>
+              Full name
+              <input id="accountName" type="text" required value="Store Customer" />
+            </label>
+            <button type="submit">Create account</button>
+          </form>
+
+          <div class="account-card">
+            <h3>Current shopper</h3>
+            <dl id="accountDetails">
+              <dt>Status</dt>
+              <dd>No account selected</dd>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <section id="orders" class="orders-section">
+        <div class="section-heading">
+          <div>
+            <h2>Orders</h2>
+            <p>Order status comes from order-service; events arrive through RabbitMQ into notifications.</p>
+          </div>
+          <button id="refreshOrders" type="button" class="secondary">Refresh orders</button>
+        </div>
+
+        <div id="checkoutMessage" class="message" hidden></div>
+        <div id="ordersList" class="orders-list" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>Northwind QA Store</span>
+      <a href="/">QA Dashboard</a>
+      <a href="http://localhost:15672" target="_blank" rel="noreferrer">RabbitMQ</a>
+      <a href="http://localhost:3000" target="_blank" rel="noreferrer">Grafana</a>
+    </footer>
+
+    <script src="/store.js" defer></script>
+  </body>
+</html>
