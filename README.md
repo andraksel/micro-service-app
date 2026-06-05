@@ -192,6 +192,289 @@ py -3 scripts\fault_lab.py smoke
 
 Ожидаемый результат - все строки должны вернуться со статусом `200`.
 
+## Установка на VPS
+
+Проект можно развернуть на обычном VPS через Docker Compose. Для учебного стенда на 4-5 человек лучше не брать самый слабый сервер, потому что здесь одновременно работают backend-сервисы, PostgreSQL, Redis, RabbitMQ, Prometheus и Grafana.
+
+### Рекомендуемые характеристики VPS
+
+| Вариант | CPU | RAM | Диск | Когда подходит |
+| --- | ---: | ---: | ---: | --- |
+| Минимум | 2 vCPU | 4 GB | 40 GB SSD | Стенд запустится, но запас будет маленький. |
+| Рекомендуется | 4 vCPU | 8 GB | 80 GB SSD/NVMe | Нормальный вариант для 4-5 человек. |
+| С запасом | 4-6 vCPU | 12-16 GB | 100+ GB SSD/NVMe | Если часто гонять тесты, fault injection и долго хранить метрики. |
+
+Рекомендуемая ОС:
+
+```text
+Ubuntu Server 22.04 LTS или 24.04 LTS
+```
+
+Рекомендуемая архитектура:
+
+```text
+x86_64 / amd64
+```
+
+### Что нужно установить на сервер
+
+На чистом Ubuntu Server установи базовые пакеты, Docker и Docker Compose plugin:
+
+```bash
+sudo apt update
+sudo apt install -y ca-certificates curl git ufw gnupg
+
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+Чтобы запускать Docker без `sudo`, добавь своего пользователя в группу `docker`:
+
+```bash
+sudo usermod -aG docker $USER
+```
+
+После этого выйди из SSH и зайди снова.
+
+Проверь установку:
+
+```bash
+docker --version
+docker compose version
+```
+
+### Рекомендуемый swap
+
+На VPS с 4-8 GB RAM полезно добавить swap, чтобы сервер не завершал процессы резко при пиковом потреблении памяти:
+
+```bash
+sudo fallocate -l 4G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```
+
+Проверить:
+
+```bash
+free -h
+```
+
+### Вариант 1. Быстрый учебный запуск по IP
+
+Этот вариант подходит, если сервер нужен только для обучения и ты готов открывать приложение по IP и порту `8080`.
+
+Склонируй репозиторий:
+
+```bash
+cd /opt
+sudo git clone https://github.com/andraksel/micro-service-app.git
+sudo chown -R $USER:$USER /opt/micro-service-app
+cd /opt/micro-service-app
+```
+
+Запусти стенд:
+
+```bash
+docker compose up -d --build
+```
+
+Проверь контейнеры:
+
+```bash
+docker compose ps
+```
+
+Открой в браузере:
+
+```text
+http://SERVER_IP:8080
+http://SERVER_IP:8080/store.html
+```
+
+Где `SERVER_IP` - публичный IP твоего VPS.
+
+Для такого варианта достаточно открыть firewall-порты:
+
+```bash
+sudo ufw allow OpenSSH
+sudo ufw allow 8080/tcp
+sudo ufw enable
+sudo ufw status
+```
+
+Минус этого варианта: нет HTTPS и приложение открывается по нестандартному порту.
+
+### Вариант 2. Нормальный вариант с доменом и HTTPS
+
+Этот вариант лучше, если стендом будут пользоваться несколько человек.
+
+Идея:
+
+- приложение внутри сервера работает на `localhost:8080`;
+- наружу открыты только `80` и `443`;
+- домен ведет на VPS;
+- внешний reverse proxy выдает HTTPS через Let's Encrypt.
+
+Можно использовать Caddy, Nginx Proxy Manager, Traefik или обычный Nginx. Самый простой вариант - Caddy.
+
+Установи Caddy:
+
+```bash
+sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+sudo apt update
+sudo apt install -y caddy
+```
+
+Пример `/etc/caddy/Caddyfile`:
+
+```text
+qa-shop.example.com {
+    reverse_proxy 127.0.0.1:8080
+}
+```
+
+Перезапусти Caddy:
+
+```bash
+sudo systemctl reload caddy
+```
+
+Firewall для варианта с HTTPS:
+
+```bash
+sudo ufw allow OpenSSH
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw enable
+sudo ufw status
+```
+
+После настройки открой:
+
+```text
+https://qa-shop.example.com
+https://qa-shop.example.com/store.html
+```
+
+Важно: замени `qa-shop.example.com` на свой реальный домен, который указывает A-записью на IP сервера.
+
+### Вариант 3. Закрытый учебный стенд без публичного доступа
+
+Если не хочешь выставлять приложение в интернет, можно оставить порты закрытыми и ходить на стенд через SSH tunnel.
+
+На сервере запускаешь:
+
+```bash
+docker compose up -d --build
+```
+
+На своем компьютере открываешь tunnel:
+
+```bash
+ssh -L 8080:localhost:8080 user@SERVER_IP
+```
+
+После этого локально открываешь:
+
+```text
+http://localhost:8080
+http://localhost:8080/store.html
+```
+
+Этот вариант безопаснее для учебного стенда, потому что наружу открыт только SSH.
+
+### Что не стоит открывать наружу
+
+Не рекомендуется публично открывать без защиты:
+
+- RabbitMQ Management UI: `15672`;
+- Prometheus: `9090`;
+- Grafana: `3000`;
+- PostgreSQL;
+- Redis;
+- внутренние порты backend-сервисов `8001-8005`.
+
+Если нужен доступ к Grafana или RabbitMQ через интернет, лучше:
+
+- закрыть их за VPN;
+- или поставить reverse proxy с Basic Auth;
+- или ограничить доступ по IP;
+- или использовать SSH tunnel.
+
+Для учебного стенда минимально наружу достаточно открыть:
+
+```text
+22/tcp  - SSH
+80/tcp  - HTTP, если используешь домен
+443/tcp - HTTPS, если используешь домен
+8080/tcp - только для простого учебного запуска без reverse proxy
+```
+
+### Обновление приложения на VPS
+
+Когда в репозитории появились новые изменения:
+
+```bash
+cd /opt/micro-service-app
+git pull
+docker compose up -d --build
+```
+
+Проверить состояние:
+
+```bash
+docker compose ps
+```
+
+Посмотреть логи:
+
+```bash
+docker compose logs -f nginx
+docker compose logs -f order-service
+```
+
+### Остановка приложения на VPS
+
+Остановить контейнеры:
+
+```bash
+cd /opt/micro-service-app
+docker compose down
+```
+
+Полностью удалить данные стенда:
+
+```bash
+docker compose down -v
+```
+
+Команда `down -v` удалит Docker volumes с PostgreSQL, Redis, RabbitMQ, Prometheus и Grafana. Используй ее только когда точно нужен полный сброс.
+
+### Бэкапы
+
+Если стенд используется только для обучения, данные можно сбрасывать через `docker compose down -v`. Если данные важны, нужно регулярно бэкапить PostgreSQL volumes или делать `pg_dump` для баз.
+
+Минимально важные данные:
+
+- пользователи;
+- товары;
+- заказы;
+- уведомления;
+- настройки Grafana, если ты менял dashboard.
+
 ## Запуск тестов
 
 Установить зависимости для тестов на хосте:
